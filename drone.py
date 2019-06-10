@@ -26,7 +26,7 @@ def main():
 
         # skip first 300 frames
         frame_skip = 300
-        drone.takeoff()
+        drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
         while True:
             for frame in container.decode(video=0):
@@ -45,7 +45,7 @@ def main():
                 procedure_time = time.time() - fly_begin_time#経過時間
                 frame_skip = int((time.time() - start_time) / time_base)
                 if procedure_time >= 10:
-                    drone.land()
+                    drone.land()#着陸
 
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
