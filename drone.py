@@ -5,11 +5,11 @@ import av
 import cv2.cv2 as cv2  # for avoidance of pylint error
 import numpy
 import time
-
+import os
 
 def main():
     drone = tellopy.Tello()
-
+    os.makedirs('output_pictures', exist_ok=True)#ディレクトリの作成
     try:
         drone.connect()
         drone.wait_for_connection(60.0)
@@ -26,8 +26,11 @@ def main():
 
         # skip first 300 frames
         frame_skip = 300
+        #flag = False
         drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
+        #drone.clockwise(10)#10%の速度で旋回?
+        count = 0#file_no
         while True:
             for frame in container.decode(video=0):
                 if 0 < frame_skip:
@@ -44,8 +47,13 @@ def main():
                     time_base = frame.time_base
                 procedure_time = time.time() - fly_begin_time#経過時間
                 frame_skip = int((time.time() - start_time) / time_base)
-                if procedure_time >= 10:
+                if procedure_time >= 30:
                     drone.land()#着陸
+                count = count + 1
+                file_path = os.path.join('output_pictures', 'frame_{:04d}.png'.format(count))
+                cv2.imwrite(file_path, image)
+            
+
 
     except Exception as ex:
         exc_type, exc_value, exc_traceback = sys.exc_info()
