@@ -7,7 +7,10 @@ import numpy
 import time
 import os
 import re
-
+#left_x は回転
+#right_xは左右の平行移動
+#left_y は上昇下降
+#right_yは前進移動
 def main():
     drone = tellopy.Tello()
     os.makedirs('output_pictures', exist_ok=True)#ディレクトリの作成
@@ -27,10 +30,13 @@ def main():
 
         # skip first 300 frames
         frame_skip = 300
-        #flag = False
+        flag = False
         drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
-        drone.clockwise(50)#10%の速度で旋回?
+        drone.left_x = 0.5
+        drone.left_y = 0.25
+        drone.right_y = 0.2
+        
         count = 0#file_no
         while True:
             for frame in container.decode(video=0):
@@ -52,8 +58,13 @@ def main():
                 file_path = os.path.join('output_pictures', 'frame_{:04d}.png'.format(count))
                 cv2.imwrite(file_path, image)
 
+                if procedure_time >= 15 and flag == False:
+                    drone.left_x = 0
+                    drone.left_y = 0
+                    drone.right_y = 0
+                    flag = True
 
-                if procedure_time >= 20:#終了条件
+                if procedure_time >= 30:#終了条件
                     drone.land()#着陸
                     drone.quit()
                     cv2.destroyAllWindows()
