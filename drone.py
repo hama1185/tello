@@ -6,6 +6,7 @@ import cv2.cv2 as cv2  # for avoidance of pylint error
 import numpy
 import time
 import os
+import re
 
 def main():
     drone = tellopy.Tello()
@@ -29,7 +30,7 @@ def main():
         #flag = False
         drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
-        #drone.clockwise(10)#10%の速度で旋回?
+        drone.clockwise(50)#10%の速度で旋回?
         count = 0#file_no
         while True:
             for frame in container.decode(video=0):
@@ -39,7 +40,7 @@ def main():
                 start_time = time.time()
                 image = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
                 cv2.imshow('Original', image)
-                cv2.imshow('Canny', cv2.Canny(image, 100, 200))
+                #cv2.imshow('Canny', cv2.Canny(image, 100, 200))
                 cv2.waitKey(1)
                 if frame.time_base < 1.0/60:
                     time_base = 1.0/60
@@ -47,11 +48,37 @@ def main():
                     time_base = frame.time_base
                 procedure_time = time.time() - fly_begin_time#経過時間
                 frame_skip = int((time.time() - start_time) / time_base)
-                if procedure_time >= 30:
-                    drone.land()#着陸
                 count = count + 1
                 file_path = os.path.join('output_pictures', 'frame_{:04d}.png'.format(count))
                 cv2.imwrite(file_path, image)
+
+
+                if procedure_time >= 20:#終了条件
+                    drone.land()#着陸
+                    drone.quit()
+                    cv2.destroyAllWindows()
+                    filepath = os.path.join('output_pictures')
+
+                    files = os.listdir(filepath)
+                    count = 0
+
+                    for file in files:
+                        index = re.search('.png', file)
+                        if index:
+                            count = count + 1
+
+                    print(count)
+
+                    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+                    video = cv2.VideoWriter('replay.mp4', fourcc, 20.0, (640, 480))
+
+                    for i in range(1, count):
+                        filepath = os.path.join('output_pictures', 'frame_{:04d}.png'.format(i))
+                        img = cv2.imread(filepath)
+                        img = cv2.resize(img, (640, 480))
+                        video.write(img)
+
+                    video.release()
             
 
 
