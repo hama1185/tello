@@ -11,6 +11,15 @@ import re
 #right_xは左右の平行移動
 #left_y は上昇下降
 #right_yは前進移動
+
+#ドローンを停止させる
+def stop(self):
+    self.left_x = 0
+    self.left_y = 0
+    self.right_y = 0
+    self.right_x = 0
+
+
 def main():
     drone = tellopy.Tello()
     os.makedirs('output_pictures', exist_ok=True)#ディレクトリの作成
@@ -34,8 +43,6 @@ def main():
         drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
         drone.left_x = 0.5
-        drone.left_y = 0.25
-        drone.right_y = 0.2
         
         count = 0#file_no
         while True:
@@ -59,9 +66,7 @@ def main():
                 cv2.imwrite(file_path, image)
 
                 if procedure_time >= 15 and flag == False:
-                    drone.left_x = 0
-                    drone.left_y = 0
-                    drone.right_y = 0
+                    stop(drone)
                     flag = True
 
                 if procedure_time >= 30:#終了条件
