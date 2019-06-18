@@ -42,7 +42,7 @@ def main():
         flag = False
         drone.takeoff()#離陸
         fly_begin_time = time.time()#飛び始めの時間
-        drone.left_x = 0.5
+        drone.left_y = 0.25
         
         count = 0#file_no
         while True:
@@ -53,7 +53,6 @@ def main():
                 start_time = time.time()
                 image = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
                 cv2.imshow('Original', image)
-                #cv2.imshow('Canny', cv2.Canny(image, 100, 200))
                 cv2.waitKey(1)
                 if frame.time_base < 1.0/60:
                     time_base = 1.0/60
@@ -65,11 +64,11 @@ def main():
                 file_path = os.path.join('output_pictures', 'frame_{:04d}.png'.format(count))
                 cv2.imwrite(file_path, image)
 
-                if procedure_time >= 15 and flag == False:
+                if procedure_time >= 8 and flag == False:
                     stop(drone)
                     flag = True
 
-                if procedure_time >= 30:#終了条件
+                if procedure_time >= 90:#終了条件
                     drone.land()#着陸
                     drone.quit()
                     cv2.destroyAllWindows()
