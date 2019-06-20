@@ -7,6 +7,8 @@ HDカメラを搭載したドローンTelloを用いて課題作成を行った�
 以下を参考にした。  
 > https://qiita.com/MuAuan/items/004b103710b8157b4c5c  
 > https://github.com/hanyazou/TelloPy
+> http://westplain.sakuraweb.com/translate/pygame/Joystick.cgi
+> https://news.denfaminicogamer.jp/kikakuthetower/1-2-switch_python/2
 ## Demo
 
 ## VS. 
