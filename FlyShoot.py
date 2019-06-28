@@ -108,9 +108,8 @@ def main():
                 else:
                     time_base = frame.time_base
                 frame_skip = int((time.time() - start_time) / time_base)
+                dir_write('raw_data', 'frame_{:04d}.png'.format(raw_count), image)
                 raw_count += 1
-                file_path = os.path.join('raw_data', 'frame_{:04d}.png'.format(raw_count))
-                cv2.imwrite(file_path, image)
 
                 for e in pygame.event.get(): # イベントチェック
                     if e.type == QUIT: # 終了が押された？
@@ -170,8 +169,7 @@ def main():
                             fly_sw = False
                         
                         if int(e.button) == 3:#Y
-                            file_path = os.path.join('take_picture', 'frame_{:04d}.png'.format(picture_count))
-                            cv2.imwrite(file_path, image)
+                            dir_write('take_picture', 'picture_{:04d}.png'.format(picture_count), image)
                             picture_count += 1
 
                         if int(e.button) == 4:#L
