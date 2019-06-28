@@ -169,6 +169,7 @@ def main():
                             for i in range(0, picture_count):
                                 filepath = os.path.join('take_picture', 'picture_{:04d}.png'.format(i))
                                 img = cv2.imread(filepath)
+                                print(cv2.Laplacian(img, cv2.CV_64F).var())#ラプラシアン微分
                                 img = pixel_art(img, 2, 32)
                                 dir_write('process_picture', 'dot_{:04d}.png'.format(i), img)    
 
