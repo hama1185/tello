@@ -48,10 +48,12 @@ def dir_write(dir_name, file_name, img):
     file_path = os.path.join(dir_name, file_name)
     cv2.imwrite(file_path, img)
 
+
 def main():
     drone = tellopy.Tello()
     os.makedirs('raw_data', exist_ok=True)#生データの保存するディレクトリの作成
-    os.makedirs('take_picture', exist_ok=True)
+    os.makedirs('take_picture', exist_ok=True)#撮影時のディレクトリ
+    os.makedirs('process_picture', exist_ok=True)#撮影時の加工画像を入れるディレクトリ
     SCREEN_WIDTH = 640
     SCREEN_HEIGHT = 480
 
@@ -99,8 +101,6 @@ def main():
                     continue
                 start_time = time.time()
                 image = cv2.cvtColor(numpy.array(frame.to_image()), cv2.COLOR_RGB2BGR)
-                # ここ
-                #image = pixel_art(image, 4, 32)
                 cv2.imshow('Original', image)
                 cv2.waitKey(1)
                 if frame.time_base < 1.0 / 60:
@@ -154,18 +154,24 @@ def main():
                                     raw_count += 1
 
                             print(raw_count)
-
+                            #ビデオとして結合
                             fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
                             video = cv2.VideoWriter('replay.mp4', fourcc, 20.0, (640, 480))
 
-                            for i in range(1, raw_count):
+                            for i in range(0, raw_count):
                                 filepath = os.path.join('raw_data', 'frame_{:04d}.png'.format(i))
                                 img = cv2.imread(filepath)
                                 img = cv2.resize(img, (640, 480))
                                 video.write(img)
 
                             video.release()
-                
+                            
+                            for i in range(0, picture_count):
+                                filepath = os.path.join('take_picture', 'picture_{:04d}.png'.format(i))
+                                img = cv2.imread(filepath)
+                                img = pixel_art(img, 2, 32)
+                                dir_write('process_picture', 'dot_{:04d}.png'.format(i), img)    
+
                             fly_sw = False
                         
                         if int(e.button) == 3:#Y
