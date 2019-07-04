@@ -16,15 +16,15 @@ from pygame.locals import *
 #right_yは前進移動
 
 #button number
-#0...A 
-#1...B 
-#2...X 
-#3...Y 
-#4...L 
-#5...R 
-#6...back 
+#0...A
+#1...B
+#2...X
+#3...Y
+#4...L
+#5...R
+#6...back
 #7...start
-#8...L3 
+#8...L3
 #9...R3
 
 def pixel_art(img, s, c):
@@ -41,7 +41,7 @@ def sub_color(img, c):
     ret, label, center = cv2.kmeans(z, c, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
     center = numpy.uint8(center)
     res = center[label.flatten()]
-    
+
     return res.reshape((img.shape))
 
 def dir_write(dir_name, file_name, img):
@@ -61,7 +61,7 @@ def main():
     try:
         joy = pygame.joystick.Joystick(0) # create a joystick instance
         joy.init() # init instance
-        print('Joystickの名称: ' + joy.get_name()) 
+        print('Joystickの名称: ' + joy.get_name())
         print('ボタン数 : ' + str(joy.get_numbuttons()))
         pygame.init()
         screen = pygame.display.set_mode( (SCREEN_WIDTH, SCREEN_HEIGHT) ) # 画面を作る
@@ -83,18 +83,17 @@ def main():
             except av.AVError as ave:
                 print(ave)
                 print('retry...')
-        
+
         fly_sw = False#takeoffとlandの切り替え
-        move_sw = False#left_xとright_xとの切り替え
         scale = 4#適時変更
         # skip first 300 frames
         frame_skip = 300
-        
+
         raw_count = 0#rawfile_no
         picture_count = 0#picturefile_no
 
         while True:
-            
+
             for frame in container.decode(video=0):
                 if 0 < frame_skip:
                     frame_skip = frame_skip - 1
@@ -118,28 +117,29 @@ def main():
                     if e.type == KEYDOWN and e.key  == K_ESCAPE: # ESCが押された？
                         drone.quit()
                         return
-                    
+
                     # Joystick関連のイベントチェック
                     if e.type == pygame.locals.JOYAXISMOTION:
-                        x , y = joy.get_axis(0), joy.get_axis(1)#x,yに値の格納
+                        x1 , y1 = joy.get_axis(0), joy.get_axis(1)#左スティックのx,yに値の格納
+                        x2 , y2 = joy.get_axis(4), joy.get_axis(3)#右スティックのx,yに値の格納
                         #print('x and y : ' + str(x) +' , '+ str(y))
-                        if move_sw == False:
-                            drone.left_x = -x
-                            drone.left_y = -y
-                        if move_sw == True:
-                            drone.right_x = -x / scale
-                            drone.right_y = -y / scale
+
+                        drone.left_x = -x1
+                        drone.left_y = -y1
+
+                        drone.right_x = x2 / scale
+                        drone.right_y = -y2 / scale
                     elif e.type == pygame.locals.JOYBALLMOTION:
                         print('ball motion')
                     elif e.type == pygame.locals.JOYHATMOTION:
                         print('hat motion')
                     elif e.type == pygame.locals.JOYBUTTONDOWN:
                         print(str(e.button)+'番目のボタンが押された')
-                        if int(e.button) == 1 and fly_sw == False:#B
+                        if int(e.button) == 7 and fly_sw == False:#start
                             drone.takeoff()
                             fly_sw = True
-                        
-                        elif int(e.button) == 1 and fly_sw == True:#B
+
+                        elif int(e.button) == 7 and fly_sw == True:#start
                             drone.land()
                             drone.quit()
                             cv2.destroyAllWindows()
@@ -165,27 +165,22 @@ def main():
                                 video.write(img)
 
                             video.release()
-                            
+
                             for i in range(0, picture_count):
                                 filepath = os.path.join('take_picture', 'picture_{:04d}.png'.format(i))
                                 img = cv2.imread(filepath)
                                 print(cv2.Laplacian(img, cv2.CV_64F).var())#ラプラシアン微分
-                                img = pixel_art(img, 2, 32)
-                                dir_write('process_picture', 'dot_{:04d}.png'.format(i), img)    
+                                img = pixel_art(img, 4, 32)
+                                dir_write('process_picture', 'dot_{:04d}.png'.format(i), img)
 
                             fly_sw = False
-                        
+
                         if int(e.button) == 3:#Y
                             dir_write('take_picture', 'picture_{:04d}.png'.format(picture_count), image)
                             picture_count += 1
 
-                        if int(e.button) == 4:#L
-                            move_sw = False
 
-                        if int(e.button) == 5:#R
-                            move_sw = True
-
-                    elif e.type == pygame.locals.JOYBUTTONUP: 
+                    elif e.type == pygame.locals.JOYBUTTONUP:
                         print(str(e.button)+'番目のボタンが離された')
 
     except Exception as ex:
