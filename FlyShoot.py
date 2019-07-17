@@ -9,6 +9,7 @@ import os
 import re
 import pygame
 from pygame.locals import *
+import PictureArt as pic
 
 #left_x は回転
 #right_xは左右の平行移動
@@ -26,23 +27,6 @@ from pygame.locals import *
 #7...start
 #8...L3
 #9...R3
-
-def pixel_art(img, s, c):
-    h, w, ch = img.shape
-    img = cv2.resize(img, (int(w / s), int(h / s)))
-    img = cv2.resize(img, (w, h), interpolation = cv2.INTER_NEAREST)
-
-    return sub_color(img, c)
-
-def sub_color(img, c):
-    z = img.reshape((-1, 3))
-    z = numpy.float32(z)
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    ret, label, center = cv2.kmeans(z, c, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-    center = numpy.uint8(center)
-    res = center[label.flatten()]
-
-    return res.reshape((img.shape))
 
 def dir_write(dir_name, file_name, img):
     file_path = os.path.join(dir_name, file_name)
@@ -170,8 +154,12 @@ def main():
                                 filepath = os.path.join('take_picture', 'picture_{:04d}.png'.format(i))
                                 img = cv2.imread(filepath)
                                 print(cv2.Laplacian(img, cv2.CV_64F).var())#ラプラシアン微分
-                                img = pixel_art(img, 4, 32)
-                                dir_write('process_picture', 'dot_{:04d}.png'.format(i), img)
+                                pixel = pic.pixelArt(img)
+                                dir_write('process_picture', 'dot_{:04d}.png'.format(i), pixel)
+                                water = pic.waterColor(img)
+                                dir_write('process_picture', 'water_{:04d}.png'.format(i), water)
+                                oil = pic.oilPaint(img)
+                                dir_write('process_picture', 'oil_{:04d}.png'.format(i), oil)
 
                             fly_sw = False
 
