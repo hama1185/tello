@@ -21,9 +21,23 @@ HDカメラを搭載したドローンTelloを用いて課題作成を行った�
 Anaconda Promptでの実行を想定  
 >pip install opencv-python  
 >pip install image  
->pip install tellopy
+>pip install tellopy  
 >pip install pygame  
 >conda install av -c conda-forge  
+
+または仮想環境を構築する  
+nは任意
+>conda create -n name python==3.7.n  
+>conda install opencv  
+>pip install pygame  
+>conda install av -c conda-forge  
+>pip install tellopy  
+>pip install image
+
+実行時
+>conda activate name  
+
+から実行
 ## Contribution
 
 ## Author
